@@ -6,14 +6,14 @@
     <style>
         :root {
             --main-pink: #fff0f5; --accent-pink: #ffb6c1; --dark-pink: #db7093;
-            --marker-pink: #f06292; --viewed-gold: #ffb300;
+            --heart-red: #ff0000; --viewed-gold: #ffcc00;
         }
         body, html { height: 100%; margin: 0; padding: 0; font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; background: var(--main-pink); }
-        #map { height: 100vh; width: 100%; display: none; /* パスワード正解まで隠す */ }
-        .map-header { position: absolute; top: 20px; left: 20px; background: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; font-weight: bold; color: var(--dark-pink); border: 1px solid var(--main-pink); }
-        .map-legend { position: absolute; bottom: 30px; right: 20px; background: rgba(255, 255, 255, 0.95); padding: 12px 18px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; font-size: 13px; border: 1px solid var(--accent-pink); line-height: 1.8; }
+        #map { height: 100vh; width: 100%; display: none; }
+        .map-header { position: absolute; top: 15px; left: 15px; background: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 10; font-weight: bold; color: var(--dark-pink); border: 1px solid var(--main-pink); }
+        .map-legend { position: absolute; bottom: 30px; right: 15px; background: rgba(255, 255, 255, 0.95); padding: 12px 18px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; font-size: 13px; border: 1px solid var(--accent-pink); line-height: 1.8; }
         .info-content { padding: 5px; max-width: 230px; }
-        .info-content h4 { margin: 0 0 8px; color: var(--dark-pink); font-size: 16px; border-bottom: 2px solid var(--main-pink); padding-bottom: 5px; }
+        .info-content h4 { margin: 0 0 10px; color: var(--dark-pink); font-size: 16px; border-bottom: 2px solid var(--main-pink); padding-bottom: 5px; }
         .info-content p { margin: 5px 0; font-size: 13px; color: #333; line-height: 1.5; }
         .info-content .rent { font-weight: bold; color: #d81b60; font-size: 17px; margin: 10px 0; }
         .info-content .memo { font-size: 12px; color: #666; background: var(--main-pink); padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 5px solid var(--accent-pink); }
@@ -25,8 +25,8 @@
     <div class="map-header" id="header" style="display:none;">🌸 港区・中央区 お部屋探しMAP</div>
     <div class="map-legend" id="legend" style="display:none;">
         <strong>マップ凡例</strong><br>
-        <span style="color:var(--viewed-gold); font-size:18px;">★</span> 内見済み<br>
-        <span style="color:var(--marker-pink); font-size:18px;">●</span> 検討中
+        <span style="color:var(--viewed-gold); font-size:18px;">♥</span> ★内見済み<br>
+        <span style="color:var(--heart-red); font-size:18px;">♥</span> 検討中
     </div>
 
 <script>
@@ -41,13 +41,14 @@ if (pass === "0723") {
     document.body.innerHTML = "<h2 style='text-align:center; color:#db7093; margin-top:50px;'>アクセス権限がありません。</h2>";
 }
 
+// 物件データ（精密座標に修正済み）
 const properties = [
-    { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", lat: 35.652131, lng: 139.732952, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
-    { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", lat: 35.659962, lng: 139.723041, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
-    { name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", lat: 35.655845, lng: 139.734731, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
+    { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", lat: 35.653424, lng: 139.734614, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
+    { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", lat: 35.659944, lng: 139.723041, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
+    { name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", lat: 35.655848, lng: 139.734733, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
     { name: "キャビンアリーナ麻布十番", size: "1LDK", area: "45.38㎡", rent: "25.8万円", memo: "トイレ", lat: 35.654153, lng: 139.735821, viewed: false, link: "https://suumo.jp/chintai/bc_100478532801/" },
     { name: "レジディアタワー麻布十番", size: "1LDK", area: "56.45㎡", rent: "34.9万円", memo: "高額", lat: 35.656338, lng: 139.736043, viewed: false, link: "https://suumo.jp/chintai/bc_100251338227/" },
-    { name: "パークハウス麻布十番", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", lat: 35.657519, lng: 139.734005, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
+    { name: "パークハウス麻布十番アーバンス", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", lat: 35.657519, lng: 139.734005, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
     { name: "パークリュクス銀座８丁目mono", size: "1LDK", area: "42.0㎡", rent: "20.9万円", memo: "エリア西過ぎ", lat: 35.666014, lng: 139.758872, viewed: false, link: "https://suumo.jp/chintai/bc_100483305238/" },
     { name: "★プラウド虎の門", size: "1LDK, 2LDK", area: "50.6〜70.8㎡", rent: "約41〜50万円", memo: "内見済み", lat: 35.666453, lng: 139.745851, viewed: true, link: "https://suumo.jp/chintai/bc_100482762229/" },
     { name: "★アルトヴィラ虎の門", size: "1LDK", area: "37.9㎡", rent: "22.4万円", memo: "内見済み", lat: 35.665352, lng: 139.747354, viewed: true, link: "https://suumo.jp/chintai/bc_100398030354/" },
@@ -61,10 +62,30 @@ function initMap() {
         zoom: 15, center: {lat: 35.658, lng: 139.738}, mapTypeControl: false, streetViewControl: true, fullscreenControl: false
     });
     const infoWindow = new google.maps.InfoWindow();
+
     properties.forEach(prop => {
-        const markerColor = prop.viewed ? "#ffb300" : "#f06292";
-        const marker = new google.maps.Marker({ position: {lat: prop.lat, lng: prop.lng}, map: map, icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 7, fillColor: markerColor, fillOpacity: 1, strokeWeight: 2, strokeColor: "#FFFFFF" } });
+        // ハートの色：内見済みはゴールド、検討中は赤
+        const heartColor = prop.viewed ? "#ffcc00" : "#ff0000";
+        
+        // ハートの形を描く（SVGパス）
+        const heartPath = "M 12 21.35 l -1.45 -1.32 C 5.4 15.36 2 12.28 2 8.5 C 2 5.42 4.42 3 7.5 3 c 1.74 0 3.41 0.81 4.5 2.09 C 13.09 3.81 14.76 3 16.5 3 C 19.58 3 22 5.42 22 8.5 c 0 3.78 -3.4 6.86 -8.55 11.54 L 12 21.35 z";
+
+        const marker = new google.maps.Marker({
+            position: {lat: prop.lat, lng: prop.lng},
+            map: map,
+            icon: {
+                path: heartPath,
+                fillColor: heartColor,
+                fillOpacity: 1,
+                strokeWeight: 2,
+                strokeColor: "#FFFFFF",
+                scale: 1.5, // ハートのサイズを1.5倍に
+                anchor: new google.maps.Point(12, 21), // ピンの先端を座標に合わせる
+            }
+        });
+
         const content = `<div class="info-content"><h4>${prop.name}</h4><p>間取り：${prop.size} / 広さ：${prop.area}</p><p class="rent">賃料：${prop.rent} (込)</p>${prop.memo ? `<div class="memo">メモ：${prop.memo}</div>` : ''}<a href="${prop.link}" class="suumo-btn" target="_blank">SUUMOでお部屋を見る</a></div>`;
+        
         marker.addListener('mouseover', () => { infoWindow.setContent(content); infoWindow.open(map, marker); });
         marker.addListener('click', () => { infoWindow.setContent(content); infoWindow.open(map, marker); });
     });
