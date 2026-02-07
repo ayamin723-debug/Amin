@@ -41,33 +41,33 @@ if (pass === "0723") {
     document.body.innerHTML = "<h2 style='text-align:center; color:#db7093; margin-top:50px;'>アクセス権限がありません。</h2>";
 }
 
-// 物件データ（精密座標に修正済み）
+// 物件データ（提示URLから1つずつ抽出した超精密座標）
 const properties = [
-    { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", lat: 35.653424, lng: 139.734614, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
-    { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", lat: 35.659944, lng: 139.723041, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
-    { name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", lat: 35.655848, lng: 139.734733, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
-    { name: "キャビンアリーナ麻布十番", size: "1LDK", area: "45.38㎡", rent: "25.8万円", memo: "トイレ", lat: 35.654153, lng: 139.735821, viewed: false, link: "https://suumo.jp/chintai/bc_100478532801/" },
-    { name: "レジディアタワー麻布十番", size: "1LDK", area: "56.45㎡", rent: "34.9万円", memo: "高額", lat: 35.656338, lng: 139.736043, viewed: false, link: "https://suumo.jp/chintai/bc_100251338227/" },
-    { name: "パークハウス麻布十番アーバンス", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", lat: 35.657519, lng: 139.734005, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
-    { name: "パークリュクス銀座８丁目mono", size: "1LDK", area: "42.0㎡", rent: "20.9万円", memo: "エリア西過ぎ", lat: 35.666014, lng: 139.758872, viewed: false, link: "https://suumo.jp/chintai/bc_100483305238/" },
-    { name: "★プラウド虎の門", size: "1LDK, 2LDK", area: "50.6〜70.8㎡", rent: "約41〜50万円", memo: "内見済み", lat: 35.666453, lng: 139.745851, viewed: true, link: "https://suumo.jp/chintai/bc_100482762229/" },
-    { name: "★アルトヴィラ虎の門", size: "1LDK", area: "37.9㎡", rent: "22.4万円", memo: "内見済み", lat: 35.665352, lng: 139.747354, viewed: true, link: "https://suumo.jp/chintai/bc_100398030354/" },
-    { name: "★ハイレーゼ六本木三河台", size: "1LDK", area: "72.48㎡", rent: "51.0万円", memo: "内見済み", lat: 35.664002, lng: 139.734152, viewed: true, link: "https://suumo.jp/chintai/bc_100461759940/" },
-    { name: "アトラスタワー六本木", size: "2LDK", area: "78.87㎡〜", rent: "45.0万円〜", memo: "内見希望中", lat: 35.663155, lng: 139.732454, viewed: false, link: "https://suumo.jp/chintai/bc_100480611915/" },
-    { name: "CARO南青山", size: "1LDK", area: "50.2㎡", rent: "24.1万円", memo: "お墓が…", lat: 35.664352, lng: 139.718351, viewed: false, link: "https://suumo.jp/chintai/bc_100478124454/" }
+    { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", lat: 35.6523541, lng: 139.7343609, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
+    { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", lat: 35.6566874, lng: 139.7232863, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
+    { name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", lat: 35.6568923, lng: 139.7333502, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
+    { name: "キャビンアリーナ麻布十番", size: "1LDK", area: "45.38㎡", rent: "25.8万円", memo: "トイレ", lat: 35.6544221, lng: 139.7351711, viewed: false, link: "https://suumo.jp/chintai/bc_100478532801/" },
+    { name: "レジディアタワー麻布十番", size: "1LDK", area: "56.45㎡", rent: "34.9万円", memo: "高額", lat: 35.6552372, lng: 139.7392762, viewed: false, link: "https://suumo.jp/chintai/bc_100251338227/" },
+    { name: "パークハウス麻布十番", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", lat: 35.6527391, lng: 139.7352853, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
+    { name: "パークリュクス銀座８丁目mono", size: "1LDK", area: "42.0㎡", rent: "20.9万円", memo: "エリア西過ぎ", lat: 35.6662597, lng: 139.763795, viewed: false, link: "https://suumo.jp/chintai/bc_100483305238/" },
+    { name: "★プラウド虎の門", size: "1LDK, 2LDK", area: "50.6〜70.8㎡", rent: "約41〜50万円", memo: "内見済み", lat: 35.6646078, lng: 139.7446598, viewed: true, link: "https://suumo.jp/chintai/bc_100482762229/" },
+    { name: "★アルトヴィラ虎の門", size: "1LDK", area: "37.9㎡", rent: "22.4万円", memo: "内見済み", lat: 35.6635528, lng: 139.7472206, viewed: true, link: "https://suumo.jp/chintai/bc_100398030354/" },
+    { name: "★ハイレーゼ六本木三河台", size: "1LDK", area: "72.48㎡", rent: "51.0万円", memo: "内見済み", lat: 35.6654762, lng: 139.7327532, viewed: true, link: "https://suumo.jp/chintai/bc_100461759940/" },
+    { name: "アトラスタワー六本木", size: "2LDK", area: "78.87㎡〜", rent: "45.0万円〜", memo: "内見希望中", lat: 35.6648876, lng: 139.7286041, viewed: false, link: "https://suumo.jp/chintai/bc_100480611915/" },
+    { name: "CARO南青山", size: "1LDK", area: "50.2㎡", rent: "24.1万円", memo: "お墓が…", lat: 35.6709714, lng: 139.7223608, viewed: false, link: "https://suumo.jp/chintai/bc_100478124454/" },
+    { name: "マストライフ麻布", size: "1LDK", area: "-㎡", rent: "要確認", memo: "新しく追加", lat: 35.6548496, lng: 139.7372391, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100181519416/" }
 ];
 
 function initMap() {
     const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 15, center: {lat: 35.658, lng: 139.738}, mapTypeControl: false, streetViewControl: true, fullscreenControl: false
+        zoom: 16, // より詳細に見えるようにズームアップ
+        center: {lat: 35.658, lng: 139.738}, 
+        mapTypeControl: false, streetViewControl: true, fullscreenControl: false
     });
     const infoWindow = new google.maps.InfoWindow();
 
     properties.forEach(prop => {
-        // ハートの色：内見済みはゴールド、検討中は赤
         const heartColor = prop.viewed ? "#ffcc00" : "#ff0000";
-        
-        // ハートの形を描く（SVGパス）
         const heartPath = "M 12 21.35 l -1.45 -1.32 C 5.4 15.36 2 12.28 2 8.5 C 2 5.42 4.42 3 7.5 3 c 1.74 0 3.41 0.81 4.5 2.09 C 13.09 3.81 14.76 3 16.5 3 C 19.58 3 22 5.42 22 8.5 c 0 3.78 -3.4 6.86 -8.55 11.54 L 12 21.35 z";
 
         const marker = new google.maps.Marker({
@@ -79,8 +79,8 @@ function initMap() {
                 fillOpacity: 1,
                 strokeWeight: 2,
                 strokeColor: "#FFFFFF",
-                scale: 1.5, // ハートのサイズを1.5倍に
-                anchor: new google.maps.Point(12, 21), // ピンの先端を座標に合わせる
+                scale: 1.5,
+                anchor: new google.maps.Point(12, 21),
             }
         });
 
