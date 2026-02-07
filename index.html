@@ -2,66 +2,88 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>お部屋探し秘密のMAP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秘密のお部屋探しMAP</title>
     <style>
         :root {
             --main-pink: #fff0f5; --accent-pink: #ffb6c1; --dark-pink: #db7093;
-            --heart-red: #ff0000; --viewed-gold: #ffcc00;
+            --heart-red: #ff0000; --viewed-gold: #ffcc00; --star-color: #ffca28;
         }
         body, html { height: 100%; margin: 0; padding: 0; font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; background: var(--main-pink); }
         #map { height: 100vh; width: 100%; display: none; }
-        .map-header { position: absolute; top: 15px; left: 15px; background: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 10; font-weight: bold; color: var(--dark-pink); border: 1px solid var(--main-pink); }
-        .map-legend { position: absolute; bottom: 30px; right: 15px; background: rgba(255, 255, 255, 0.95); padding: 12px 18px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; font-size: 13px; border: 1px solid var(--accent-pink); line-height: 1.8; }
-        .info-content { padding: 5px; max-width: 230px; }
-        .info-content h4 { margin: 0 0 10px; color: var(--dark-pink); font-size: 16px; border-bottom: 2px solid var(--main-pink); padding-bottom: 5px; }
-        .info-content p { margin: 5px 0; font-size: 13px; color: #333; line-height: 1.5; }
-        .info-content .rent { font-weight: bold; color: #d81b60; font-size: 17px; margin: 10px 0; }
-        .info-content .memo { font-size: 12px; color: #666; background: var(--main-pink); padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 5px solid var(--accent-pink); }
-        .suumo-btn { display: block; text-align: center; background: #FF8E00; color: white; text-decoration: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 13px; font-weight: bold; }
+        
+        /* ヘッダー・凡例 */
+        .map-header { position: absolute; top: 10px; left: 10px; background: white; padding: 10px 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 10; font-weight: bold; color: var(--dark-pink); border: 1px solid var(--main-pink); font-size: 14px; }
+        .map-legend { position: absolute; bottom: 20px; right: 10px; background: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; font-size: 11px; border: 1px solid var(--accent-pink); }
+
+        /* 吹き出し（詳細ウィンドウ）の巨大化設定 */
+        .info-content { 
+            padding: 10px; 
+            width: 280px; /* スマホ画面で大きく見えるサイズ */
+            max-width: 85vw;
+        }
+        .info-content h4 { 
+            margin: 0 0 12px; color: var(--dark-pink); font-size: 18px; 
+            border-bottom: 3px solid var(--main-pink); padding-bottom: 5px;
+        }
+        .info-content p { margin: 8px 0; font-size: 15px; color: #333; line-height: 1.6; }
+        .info-content .rent { font-weight: bold; color: #d81b60; font-size: 20px; margin: 12px 0; }
+        
+        /* 星評価のスタイル */
+        .star-rating { color: var(--star-color); font-size: 24px; margin: 10px 0; letter-spacing: 2px; }
+        .star-rating span { cursor: pointer; }
+
+        .info-content .memo { 
+            font-size: 14px; color: #555; background: var(--main-pink); 
+            padding: 12px; border-radius: 8px; margin-top: 10px;
+            border-left: 6px solid var(--accent-pink);
+        }
+        .suumo-btn { 
+            display: block; text-align: center; background: #FF8E00; 
+            color: white; text-decoration: none; padding: 15px; border-radius: 10px; 
+            margin-top: 20px; font-size: 15px; font-weight: bold;
+        }
+
+        /* Google InfoWindowの枠自体を大きく調整 */
+        .gm-style-iw { max-width: 90% !important; border-radius: 15px !important; }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <div class="map-header" id="header" style="display:none;">🌸 港区・中央区 お部屋探しMAP</div>
-    <div class="map-legend" id="legend" style="display:none;">
-        <strong>マップ凡例</strong><br>
-        <span style="color:var(--viewed-gold); font-size:18px;">♥</span> ★内見済み<br>
-        <span style="color:var(--heart-red); font-size:18px;">♥</span> 検討中
-    </div>
+    <div class="map-header" id="header" style="display:none;">🌸 お部屋探しMAP</div>
+    <div id="map"></div>
 
 <script>
-// --- パスワード保護設定 ---
+// --- パスワード保護 ---
 const pass = prompt("パスワードを入力してください🌸");
 if (pass === "0723") {
     document.getElementById('map').style.display = 'block';
     document.getElementById('header').style.display = 'block';
-    document.getElementById('legend').style.display = 'block';
 } else {
     alert("パスワードが違います。");
     document.body.innerHTML = "<h2 style='text-align:center; color:#db7093; margin-top:50px;'>アクセス権限がありません。</h2>";
 }
 
-// 物件データ（提示URLから1つずつ抽出した超精密座標）
+// 物件データ（rating を追加しました。0〜5の数字で星の数を変えられます）
 const properties = [
-    { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", lat: 35.6523541, lng: 139.7343609, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
-    { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", lat: 35.6566874, lng: 139.7232863, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
-    { name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", lat: 35.6568923, lng: 139.7333502, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
-    { name: "キャビンアリーナ麻布十番", size: "1LDK", area: "45.38㎡", rent: "25.8万円", memo: "トイレ", lat: 35.6544221, lng: 139.7351711, viewed: false, link: "https://suumo.jp/chintai/bc_100478532801/" },
-    { name: "レジディアタワー麻布十番", size: "1LDK", area: "56.45㎡", rent: "34.9万円", memo: "高額", lat: 35.6552372, lng: 139.7392762, viewed: false, link: "https://suumo.jp/chintai/bc_100251338227/" },
-    { name: "パークハウス麻布十番", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", lat: 35.6527391, lng: 139.7352853, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
-    { name: "パークリュクス銀座８丁目mono", size: "1LDK", area: "42.0㎡", rent: "20.9万円", memo: "エリア西過ぎ", lat: 35.6662597, lng: 139.763795, viewed: false, link: "https://suumo.jp/chintai/bc_100483305238/" },
-    { name: "★プラウド虎の門", size: "1LDK, 2LDK", area: "50.6〜70.8㎡", rent: "約41〜50万円", memo: "内見済み", lat: 35.6646078, lng: 139.7446598, viewed: true, link: "https://suumo.jp/chintai/bc_100482762229/" },
-    { name: "★アルトヴィラ虎の門", size: "1LDK", area: "37.9㎡", rent: "22.4万円", memo: "内見済み", lat: 35.6635528, lng: 139.7472206, viewed: true, link: "https://suumo.jp/chintai/bc_100398030354/" },
-    { name: "★ハイレーゼ六本木三河台", size: "1LDK", area: "72.48㎡", rent: "51.0万円", memo: "内見済み", lat: 35.6654762, lng: 139.7327532, viewed: true, link: "https://suumo.jp/chintai/bc_100461759940/" },
-    { name: "アトラスタワー六本木", size: "2LDK", area: "78.87㎡〜", rent: "45.0万円〜", memo: "内見希望中", lat: 35.6648876, lng: 139.7286041, viewed: false, link: "https://suumo.jp/chintai/bc_100480611915/" },
-    { name: "CARO南青山", size: "1LDK", area: "50.2㎡", rent: "24.1万円", memo: "お墓が…", lat: 35.6709714, lng: 139.7223608, viewed: false, link: "https://suumo.jp/chintai/bc_100478124454/" },
-    { name: "マストライフ麻布", size: "1LDK", area: "-㎡", rent: "要確認", memo: "新しく追加", lat: 35.6548496, lng: 139.7372391, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100181519416/" }
+    { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", rating: 0, lat: 35.6523541, lng: 139.7343609, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
+    { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", rating: 0, lat: 35.6566874, lng: 139.7232863, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
+    { name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", rating: 4, lat: 35.6568923, lng: 139.7333502, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
+    { name: "キャビンアリーナ麻布十番", size: "1LDK", area: "45.38㎡", rent: "25.8万円", memo: "トイレ", rating: 3, lat: 35.6544221, lng: 139.7351711, viewed: false, link: "https://suumo.jp/chintai/bc_100478532801/" },
+    { name: "レジディアタワー麻布十番", size: "1LDK", area: "56.45㎡", rent: "34.9万円", memo: "高額", rating: 2, lat: 35.6552372, lng: 139.7392762, viewed: false, link: "https://suumo.jp/chintai/bc_100251338227/" },
+    { name: "パークハウス麻布十番", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", rating: 0, lat: 35.6527391, lng: 139.7352853, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
+    { name: "パークリュクス銀座８丁目mono", size: "1LDK", area: "42.0㎡", rent: "20.9万円", memo: "エリア西過ぎ", rating: 0, lat: 35.6662597, lng: 139.763795, viewed: false, link: "https://suumo.jp/chintai/bc_100483305238/" },
+    { name: "★プラウド虎の門", size: "1LDK, 2LDK", area: "50.6〜70.8㎡", rent: "約41〜50万円", memo: "内見済み", rating: 5, lat: 35.6646078, lng: 139.7446598, viewed: true, link: "https://suumo.jp/chintai/bc_100482762229/" },
+    { name: "★アルトヴィラ虎の門", size: "1LDK", area: "37.9㎡", rent: "22.4万円", memo: "内見済み", rating: 4, lat: 35.6635528, lng: 139.7472206, viewed: true, link: "https://suumo.jp/chintai/bc_100398030354/" },
+    { name: "★ハイレーゼ六本木三河台", size: "1LDK", area: "72.48㎡", rent: "51.0万円", memo: "内見済み", rating: 5, lat: 35.6654762, lng: 139.7327532, viewed: true, link: "https://suumo.jp/chintai/bc_100461759940/" },
+    { name: "アトラスタワー六本木", size: "2LDK", area: "78.87㎡〜", rent: "45.0万円〜", memo: "内見希望中", rating: 0, lat: 35.6648876, lng: 139.7286041, viewed: false, link: "https://suumo.jp/chintai/bc_100480611915/" },
+    { name: "CARO南青山", size: "1LDK", area: "50.2㎡", rent: "24.1万円", memo: "お墓が…", rating: 0, lat: 35.6709714, lng: 139.7223608, viewed: false, link: "https://suumo.jp/chintai/bc_100478124454/" },
+    { name: "マストライフ麻布", size: "1LDK", area: "-㎡", rent: "要確認", memo: "新しく追加", rating: 0, lat: 35.6548496, lng: 139.7372391, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100181519416/" }
 ];
 
 function initMap() {
     const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16, // より詳細に見えるようにズームアップ
-        center: {lat: 35.658, lng: 139.738}, 
+        zoom: 16, center: {lat: 35.658, lng: 139.738}, 
         mapTypeControl: false, streetViewControl: true, fullscreenControl: false
     });
     const infoWindow = new google.maps.InfoWindow();
@@ -79,15 +101,36 @@ function initMap() {
                 fillOpacity: 1,
                 strokeWeight: 2,
                 strokeColor: "#FFFFFF",
-                scale: 1.5,
+                scale: 3.0, // ピンを大きくしました！
                 anchor: new google.maps.Point(12, 21),
             }
         });
 
-        const content = `<div class="info-content"><h4>${prop.name}</h4><p>間取り：${prop.size} / 広さ：${prop.area}</p><p class="rent">賃料：${prop.rent} (込)</p>${prop.memo ? `<div class="memo">メモ：${prop.memo}</div>` : ''}<a href="${prop.link}" class="suumo-btn" target="_blank">SUUMOでお部屋を見る</a></div>`;
-        
-        marker.addListener('mouseover', () => { infoWindow.setContent(content); infoWindow.open(map, marker); });
-        marker.addListener('click', () => { infoWindow.setContent(content); infoWindow.open(map, marker); });
+        // 星評価のHTMLを生成する関数
+        const getStars = (count) => {
+            let stars = "";
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= count ? "★" : "☆";
+            }
+            return stars;
+        };
+
+        const content = `
+            <div class="info-content">
+                <h4>${prop.name}</h4>
+                <p>間取り：${prop.size} / 広さ：${prop.area}</p>
+                <p class="rent">${prop.rent} (込)</p>
+                <div class="star-rating">お気に入り：${getStars(prop.rating)}</div>
+                ${prop.memo ? `<div class="memo">メモ：${prop.memo}</div>` : ''}
+                <a href="${prop.link}" class="suumo-btn" target="_blank">SUUMOでお部屋を見る</a>
+            </div>
+        `;
+
+        // クリックで表示（スマホを意識）
+        marker.addListener('click', () => {
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+        });
     });
 }
 </script>
