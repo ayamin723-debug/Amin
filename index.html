@@ -31,7 +31,6 @@
         
         /* 星評価のスタイル */
         .star-rating { color: var(--star-color); font-size: 24px; margin: 10px 0; letter-spacing: 2px; }
-        .star-rating span { cursor: pointer; }
 
         .info-content .memo { 
             font-size: 14px; color: #555; background: var(--main-pink); 
@@ -51,7 +50,6 @@
 <body>
     <div id="map"></div>
     <div class="map-header" id="header" style="display:none;">🌸 お部屋探しMAP</div>
-    <div id="map"></div>
 
 <script>
 // --- パスワード保護 ---
@@ -64,7 +62,7 @@ if (pass === "0723") {
     document.body.innerHTML = "<h2 style='text-align:center; color:#db7093; margin-top:50px;'>アクセス権限がありません。</h2>";
 }
 
-// 物件データ（rating を追加しました。0〜5の数字で星の数を変えられます）
+// 物件データ（rating: 0〜5の数字で星の数を変えられます）
 const properties = [
     { name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", rating: 0, lat: 35.6523541, lng: 139.7343609, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
     { name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", rating: 0, lat: 35.6566874, lng: 139.7232863, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
@@ -78,7 +76,7 @@ const properties = [
     { name: "★ハイレーゼ六本木三河台", size: "1LDK", area: "72.48㎡", rent: "51.0万円", memo: "内見済み", rating: 5, lat: 35.6654762, lng: 139.7327532, viewed: true, link: "https://suumo.jp/chintai/bc_100461759940/" },
     { name: "アトラスタワー六本木", size: "2LDK", area: "78.87㎡〜", rent: "45.0万円〜", memo: "内見希望中", rating: 0, lat: 35.6648876, lng: 139.7286041, viewed: false, link: "https://suumo.jp/chintai/bc_100480611915/" },
     { name: "CARO南青山", size: "1LDK", area: "50.2㎡", rent: "24.1万円", memo: "お墓が…", rating: 0, lat: 35.6709714, lng: 139.7223608, viewed: false, link: "https://suumo.jp/chintai/bc_100478124454/" },
-    { name: "マストライフ麻布", size: "1LDK", area: "-㎡", rent: "要確認", memo: "新しく追加", rating: 0, lat: 35.6548496, lng: 139.7372391, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100181519416/" }
+    { name: "マストライフ麻布", size: "1LDK", area: "40.08㎡", rent: "24.0万円", memo: "管理会社厳しい", rating: 0, lat: 35.6548496, lng: 139.7372391, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100181519416/" }
 ];
 
 function initMap() {
@@ -101,12 +99,12 @@ function initMap() {
                 fillOpacity: 1,
                 strokeWeight: 2,
                 strokeColor: "#FFFFFF",
-                scale: 3.0, // ピンを大きくしました！
+                scale: 3.0,
                 anchor: new google.maps.Point(12, 21),
             }
         });
 
-        // 星評価のHTMLを生成する関数
+        // 星評価の表示用関数
         const getStars = (count) => {
             let stars = "";
             for (let i = 1; i <= 5; i++) {
@@ -126,7 +124,6 @@ function initMap() {
             </div>
         `;
 
-        // クリックで表示（スマホを意識）
         marker.addListener('click', () => {
             infoWindow.setContent(content);
             infoWindow.open(map, marker);
