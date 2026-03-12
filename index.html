@@ -1,125 +1,321 @@
-不動産ピンアプリコード
+import { useState } from "react";
+import { Check, Mic, Camera, Shield, ChevronRight, Bell, Star, Sparkles } from "lucide-react";
 
-
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>秘密のお部屋探しMAP</title>
-    <style>
-        :root {
-            --main-pink: #fff0f5; --accent-pink: #ffb6c1; --dark-pink: #db7093;
-            --heart-red: #ff0000; --viewed-gold: #ffcc00; --star-color: #ffca28;
-        }
-        body, html { height: 100%; margin: 0; padding: 0; font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; background: var(--main-pink); }
-        #map { height: 100vh; width: 100%; display: none; }
-        
-        .map-header { position: absolute; top: 10px; left: 10px; background: white; padding: 10px 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 10; font-weight: bold; color: var(--dark-pink); border: 1px solid var(--main-pink); font-size: 14px; }
-
-        .info-content { padding: 10px; width: 280px; max-width: 85vw; }
-        .info-content h4 { margin: 0 0 12px; color: var(--dark-pink); font-size: 18px; border-bottom: 3px solid var(--main-pink); padding-bottom: 5px; }
-        .info-content p { margin: 8px 0; font-size: 15px; color: #333; line-height: 1.6; }
-        .info-content .rent { font-weight: bold; color: #d81b60; font-size: 20px; margin: 12px 0; }
-        
-        /* 星評価のデザイン */
-        .star-rating { color: var(--star-color); font-size: 32px; margin: 10px 0; letter-spacing: 4px; }
-        .star-rating span { cursor: pointer; transition: transform 0.1s; display: inline-block; }
-        .star-rating span:active { transform: scale(1.3); }
-
-        .info-content .memo { font-size: 14px; color: #555; background: var(--main-pink); padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 6px solid var(--accent-pink); }
-        .suumo-btn { display: block; text-align: center; background: #FF8E00; color: white; text-decoration: none; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 15px; font-weight: bold; }
-        .gm-style-iw { max-width: 90% !important; border-radius: 15px !important; }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-    <div class="map-header" id="header" style="display:none;">🌸 お部屋探しMAP</div>
-
-<script>
-const pass = prompt("パスワードを入力してください🌸");
-if (pass === "0723") {
-    document.getElementById('map').style.display = 'block';
-    document.getElementById('header').style.display = 'block';
-} else {
-    alert("パスワードが違います。");
-    document.body.innerHTML = "<h2 style='text-align:center; color:#db7093; margin-top:50px;'>アクセス権限がありません。</h2>";
-}
-
-const properties = [
-    { id: 1, name: "南麻布仙台坂レジデンス", size: "1LDK", area: "48.38㎡", rent: "26.7万円", memo: "", rating: 0, lat: 35.6523541, lng: 139.7343609, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100481015648/" },
-    { id: 2, name: "ザパークハウス西麻布レジデンス", size: "1LDK", area: "43.19㎡", rent: "約32.0万円", memo: "", rating: 0, lat: 35.6566874, lng: 139.7232863, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_0000049454/" },
-    { id: 3, name: "Raum麻布十番", size: "1LDK", area: "46.55㎡", rent: "29.0万円", memo: "募集多い", rating: 4, lat: 35.6568923, lng: 139.7333502, viewed: false, link: "https://suumo.jp/chintai/bc_100477030402/" },
-    { id: 4, name: "キャビンアリーナ麻布十番", size: "1LDK", area: "45.38㎡", rent: "25.8万円", memo: "トイレ", rating: 3, lat: 35.6544221, lng: 139.7351711, viewed: false, link: "https://suumo.jp/chintai/bc_100478532801/" },
-    { id: 5, name: "レジディアタワー麻布十番", size: "1LDK", area: "56.45㎡", rent: "34.9万円", memo: "高額", rating: 2, lat: 35.6552372, lng: 139.7392762, viewed: false, link: "https://suumo.jp/chintai/bc_100251338227/" },
-    { id: 6, name: "パークハウス麻布十番", size: "1LDK", area: "41.07㎡", rent: "23.5万円", memo: "部屋の作り", rating: 0, lat: 35.6527391, lng: 139.7352853, viewed: false, link: "https://suumo.jp/chintai/bc_100468221946/" },
-    { id: 7, name: "パークリュクス銀座８丁目mono", size: "1LDK", area: "42.0㎡", rent: "20.9万円", memo: "エリア西過ぎ", rating: 0, lat: 35.6662597, lng: 139.763795, viewed: false, link: "https://suumo.jp/chintai/bc_100483305238/" },
-    { id: 8, name: "★プラウド虎の門", size: "1LDK, 2LDK", area: "50.6〜70.8㎡", rent: "約41〜50万円", memo: "内見済み", rating: 5, lat: 35.6646078, lng: 139.7446598, viewed: true, link: "https://suumo.jp/chintai/bc_100482762229/" },
-    { id: 9, name: "★アルトヴィラ虎の門", size: "1LDK", area: "37.9㎡", rent: "22.4万円", memo: "内見済み", rating: 4, lat: 35.6635528, lng: 139.7472206, viewed: true, link: "https://suumo.jp/chintai/bc_100398030354/" },
-    { id: 10, name: "★ハイレーゼ六本木三河台", size: "1LDK", area: "72.48㎡", rent: "51.0万円", memo: "内見済み", rating: 5, lat: 35.6654762, lng: 139.7327532, viewed: true, link: "https://suumo.jp/chintai/bc_100461759940/" },
-    { id: 11, name: "アトラスタワー六本木", size: "2LDK", area: "78.87㎡〜", rent: "45.0万円〜", memo: "内見希望中", rating: 0, lat: 35.6648876, lng: 139.7286041, viewed: false, link: "https://suumo.jp/chintai/bc_100480611915/" },
-    { id: 12, name: "CARO南青山", size: "1LDK", area: "50.2㎡", rent: "24.1万円", memo: "お墓が…", rating: 0, lat: 35.6709714, lng: 139.7223608, viewed: false, link: "https://suumo.jp/chintai/bc_100478124454/" },
-    { id: 13, name: "マストライフ麻布", size: "1LDK", area: "40.08㎡", rent: "24.0万円", memo: "管理会社厳しい", rating: 0, lat: 35.6548496, lng: 139.7372391, viewed: false, link: "https://suumo.jp/library/tf_13/sc_13103/to_100181519416/" }
+const tasks = [
+  {
+    id: 1,
+    timing: "3日前",
+    timingLabel: "3/17 (月)",
+    emoji: "🧵",
+    task: "ゼッケンの縫い付け確認",
+    detail: "背番号「14」が正しく縫付けられているか確認してね",
+    color: "bg-amber-100 border-amber-300",
+    dot: "bg-amber-400",
+    badge: "text-amber-700 bg-amber-50",
+  },
+  {
+    id: 2,
+    timing: "2日前",
+    timingLabel: "3/18 (火)",
+    emoji: "🍌",
+    task: "補食の買い出し",
+    detail: "バナナ×3本・ゼリー飲料×2個・スポーツドリンク",
+    color: "bg-green-100 border-green-300",
+    dot: "bg-emerald-400",
+    badge: "text-emerald-700 bg-emerald-50",
+  },
+  {
+    id: 3,
+    timing: "前日",
+    timingLabel: "3/19 (水)",
+    emoji: "🍱",
+    task: "お弁当の仕込み・水筒の準備",
+    detail: "から揚げは前夜に揚げておくと朝がラク！水筒は2本用意",
+    color: "bg-orange-100 border-orange-300",
+    dot: "bg-orange-400",
+    badge: "text-orange-700 bg-orange-50",
+  },
+  {
+    id: 4,
+    timing: "当日 06:00",
+    timingLabel: "3/20 (木) 朝",
+    emoji: "🌅",
+    task: "お弁当完成・出発！",
+    detail: "集合時間 07:30。忘れ物チェック：ユニフォーム・グローブ・帽子",
+    color: "bg-sky-100 border-sky-300",
+    dot: "bg-sky-400",
+    badge: "text-sky-700 bg-sky-50",
+    isEvent: true,
+  },
 ];
 
-// 星をタップした時に色を変える関数
-function setRating(objId, score) {
-    const starsContainer = document.getElementById('stars-' + objId);
-    let starHtml = "";
-    for (let i = 1; i <= 5; i++) {
-        starHtml += `<span onclick="setRating(${objId}, ${i})">${i <= score ? '★' : '☆'}</span>`;
-    }
-    starsContainer.innerHTML = starHtml;
-}
+const SquirrelFace = () => (
+  <svg viewBox="0 0 80 80" className="w-full h-full" fill="none">
+    {/* Body */}
+    <ellipse cx="40" cy="58" rx="22" ry="18" fill="#E8A87C" />
+    {/* Head */}
+    <circle cx="40" cy="36" r="22" fill="#E8A87C" />
+    {/* Ears */}
+    <ellipse cx="22" cy="18" rx="8" ry="11" fill="#E8A87C" />
+    <ellipse cx="58" cy="18" rx="8" ry="11" fill="#E8A87C" />
+    <ellipse cx="22" cy="18" rx="5" ry="8" fill="#F4C2A1" />
+    <ellipse cx="58" cy="18" rx="5" ry="8" fill="#F4C2A1" />
+    {/* Face */}
+    <circle cx="33" cy="34" r="4" fill="white" />
+    <circle cx="47" cy="34" r="4" fill="white" />
+    <circle cx="34" cy="34" r="2.5" fill="#3D2B1F" />
+    <circle cx="48" cy="34" r="2.5" fill="#3D2B1F" />
+    <circle cx="35" cy="33" r="1" fill="white" />
+    <circle cx="49" cy="33" r="1" fill="white" />
+    {/* Nose */}
+    <ellipse cx="40" cy="41" rx="3.5" ry="2.5" fill="#C1755A" />
+    {/* Mouth */}
+    <path d="M36 44 Q40 47 44 44" stroke="#C1755A" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    {/* Cheeks */}
+    <ellipse cx="27" cy="40" rx="5" ry="3" fill="#F9A8D4" opacity="0.6" />
+    <ellipse cx="53" cy="40" rx="5" ry="3" fill="#F9A8D4" opacity="0.6" />
+    {/* Tail hint */}
+    <path d="M60 62 Q75 50 70 38 Q68 30 62 35" stroke="#C1755A" strokeWidth="6" strokeLinecap="round" fill="none" />
+    {/* Belly */}
+    <ellipse cx="40" cy="60" rx="14" ry="10" fill="#F4C2A1" />
+    {/* Little acorn */}
+    <ellipse cx="40" cy="68" rx="5" ry="4" fill="#8B6340" />
+    <ellipse cx="40" cy="65" rx="6" ry="3" fill="#6B4C30" />
+  </svg>
+);
 
-function initMap() {
-    const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16, center: {lat: 35.658, lng: 139.738}, 
-        mapTypeControl: false, streetViewControl: true, fullscreenControl: false
-    });
-    const infoWindow = new google.maps.InfoWindow();
+export default function App() {
+  const [checked, setChecked] = useState({});
+  const [voiceActive, setVoiceActive] = useState(false);
+  const [photoActive, setPhotoActive] = useState(false);
 
-    properties.forEach(prop => {
-        const heartColor = prop.viewed ? "#ffcc00" : "#ff0000";
-        const heartPath = "M 12 21.35 l -1.45 -1.32 C 5.4 15.36 2 12.28 2 8.5 C 2 5.42 4.42 3 7.5 3 c 1.74 0 3.41 0.81 4.5 2.09 C 13.09 3.81 14.76 3 16.5 3 C 19.58 3 22 5.42 22 8.5 c 0 3.78 -3.4 6.86 -8.55 11.54 L 12 21.35 z";
+  const toggleCheck = (id) => setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+  const completedCount = Object.values(checked).filter(Boolean).length;
 
-        const marker = new google.maps.Marker({
-            position: {lat: prop.lat, lng: prop.lng},
-            map: map,
-            icon: {
-                path: heartPath,
-                fillColor: heartColor,
-                fillOpacity: 1,
-                strokeWeight: 2,
-                strokeColor: "#FFFFFF",
-                scale: 1.6, // ハートの大きさを程よいサイズ（前回の約半分）に調整
-                anchor: new google.maps.Point(12, 21),
-            }
-        });
+  const handleVoice = () => {
+    setVoiceActive(true);
+    setTimeout(() => setVoiceActive(false), 2000);
+  };
 
-        marker.addListener('click', () => {
-            // 星の初期表示を作成
-            let initialStars = "";
-            for (let i = 1; i <= 5; i++) {
-                initialStars += `<span onclick="setRating(${prop.id}, ${i})">${i <= prop.rating ? '★' : '☆'}</span>`;
-            }
+  const handlePhoto = () => {
+    setPhotoActive(true);
+    setTimeout(() => setPhotoActive(false), 2000);
+  };
 
-            const content = `
-                <div class="info-content">
-                    <h4>${prop.name}</h4>
-                    <p>間取り：${prop.size} / 広さ：${prop.area}</p>
-                    <p class="rent">${prop.rent} (込)</p>
-                    <div class="star-rating" id="stars-${prop.id}">${initialStars}</div>
-                    ${prop.memo ? `<div class="memo">メモ：${prop.memo}</div>` : ''}
-                    <a href="${prop.link}" class="suumo-btn" target="_blank">SUUMOでお部屋を見る</a>
+  return (
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background: "linear-gradient(160deg, #FFF8F0 0%, #F0FAF5 50%, #FFF3E8 100%)",
+        fontFamily: "'Georgia', serif",
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-6 pb-2">
+        <div>
+          <p className="text-xs text-orange-400 font-sans font-semibold tracking-widest uppercase">AI逆算コンシェルジュ</p>
+          <h1 className="text-2xl font-bold text-stone-700" style={{ letterSpacing: "-0.5px" }}>
+            Koteco<span className="text-orange-400">.</span>
+          </h1>
+        </div>
+        <button className="relative w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center">
+          <Bell size={18} className="text-stone-500" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-400 rounded-full" />
+        </button>
+      </div>
+
+      <div className="flex-1 px-4 pb-8 space-y-4 overflow-y-auto">
+
+        {/* Character Message Card */}
+        <div
+          className="rounded-3xl p-5 shadow-sm relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #FFF0DC 0%, #FFE4C4 100%)", border: "1.5px solid #FDDCB0" }}
+        >
+          <div className="flex items-end gap-4">
+            <div className="w-20 h-20 flex-shrink-0 drop-shadow-md">
+              <SquirrelFace />
+            </div>
+            <div className="flex-1">
+              <div
+                className="rounded-2xl rounded-bl-sm p-3.5"
+                style={{ background: "white", border: "1.5px solid #FFD9A8" }}
+              >
+                <p className="text-stone-600 text-sm leading-relaxed font-sans">
+                  ママ、今日もお疲れ様！🌟<br />
+                  <span className="font-semibold text-orange-500">3/20の少年野球の大会</span>まであと<span className="font-bold text-orange-600">3日</span>だよ。<br />
+                  一緒に準備の確認しよっか？🐿️
+                </p>
+              </div>
+              <div className="flex items-center gap-1 mt-1.5 ml-2">
+                <Sparkles size={11} className="text-amber-400" />
+                <p className="text-xs text-amber-500 font-sans">Koteco（コテコ）</p>
+              </div>
+            </div>
+          </div>
+          {/* Progress indicator */}
+          <div className="mt-4">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-sans text-stone-500">準備の進捗</span>
+              <span className="text-xs font-sans font-bold text-orange-500">{completedCount}/{tasks.length} 完了</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-orange-100 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${(completedCount / tasks.length) * 100}%`,
+                  background: "linear-gradient(90deg, #FBA04B, #F97316)",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Input Section */}
+        <div>
+          <p className="text-xs font-sans font-semibold text-stone-400 uppercase tracking-widest mb-2.5 px-1">
+            新しい予定を追加
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleVoice}
+              className="rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-sm active:scale-95 transition-all duration-150"
+              style={{
+                background: voiceActive
+                  ? "linear-gradient(135deg, #F97316, #FB923C)"
+                  : "linear-gradient(135deg, #FFF3E8, #FFE8CC)",
+                border: "1.5px solid #FDDCB0",
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center shadow-inner"
+                style={{ background: voiceActive ? "rgba(255,255,255,0.3)" : "#FEDDBA" }}
+              >
+                <Mic size={22} className={voiceActive ? "text-white animate-pulse" : "text-orange-500"} />
+              </div>
+              <span className={`text-sm font-sans font-semibold ${voiceActive ? "text-white" : "text-orange-600"}`}>
+                {voiceActive ? "聞いてるよ…" : "🎙 声で伝える"}
+              </span>
+            </button>
+
+            <button
+              onClick={handlePhoto}
+              className="rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-sm active:scale-95 transition-all duration-150"
+              style={{
+                background: photoActive
+                  ? "linear-gradient(135deg, #10B981, #34D399)"
+                  : "linear-gradient(135deg, #F0FAF5, #DCFCE7)",
+                border: "1.5px solid #A7F3D0",
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center shadow-inner"
+                style={{ background: photoActive ? "rgba(255,255,255,0.3)" : "#BBF7D0" }}
+              >
+                <Camera size={22} className={photoActive ? "text-white" : "text-emerald-500"} />
+              </div>
+              <span className={`text-sm font-sans font-semibold ${photoActive ? "text-white" : "text-emerald-600"}`}>
+                {photoActive ? "読み取り中…" : "📸 プリントを撮る"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* AI Generated Schedule */}
+        <div>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-2">
+              <Star size={14} className="text-orange-400 fill-orange-400" />
+              <p className="text-xs font-sans font-semibold text-stone-400 uppercase tracking-widest">AI逆算スケジュール</p>
+            </div>
+            <button className="text-xs font-sans text-orange-400 flex items-center gap-0.5">
+              すべて見る <ChevronRight size={13} />
+            </button>
+          </div>
+
+          {/* Event Header */}
+          <div
+            className="rounded-2xl px-4 py-3 mb-3 flex items-center gap-3"
+            style={{ background: "linear-gradient(135deg, #F97316, #FB923C)", boxShadow: "0 4px 14px rgba(249,115,22,0.3)" }}
+          >
+            <span className="text-2xl">⚾</span>
+            <div>
+              <p className="text-white font-sans font-bold text-base leading-tight">少年野球の大会</p>
+              <p className="text-orange-100 font-sans text-xs">3月20日（木）・試合開始 08:00〜</p>
+            </div>
+            <div className="ml-auto bg-white bg-opacity-20 rounded-xl px-2.5 py-1">
+              <p className="text-white font-sans text-xs font-bold">あと3日</p>
+            </div>
+          </div>
+
+          {/* Timeline Tasks */}
+          <div className="relative">
+            {/* Vertical line */}
+            <div
+              className="absolute left-8 top-4 bottom-4 w-0.5"
+              style={{ background: "linear-gradient(to bottom, #FDDCB0, #A7F3D0, #BAE6FD)" }}
+            />
+
+            <div className="space-y-3">
+              {tasks.map((task) => (
+                <div key={task.id} className="flex items-start gap-3">
+                  {/* Timeline dot */}
+                  <div className="flex flex-col items-center flex-shrink-0 w-8 pt-3">
+                    <div className={`w-4 h-4 rounded-full border-2 border-white shadow-md ${task.dot} z-10`} />
+                  </div>
+
+                  {/* Task Card */}
+                  <button
+                    onClick={() => toggleCheck(task.id)}
+                    className={`flex-1 rounded-2xl p-4 border text-left transition-all duration-300 active:scale-98 ${task.color} ${checked[task.id] ? "opacity-60" : ""}`}
+                    style={{ boxShadow: checked[task.id] ? "none" : "0 2px 8px rgba(0,0,0,0.06)" }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className={`text-xs font-sans font-bold px-2 py-0.5 rounded-full ${task.badge}`}
+                          >
+                            {task.timing}
+                          </span>
+                          <span className="text-xs font-sans text-stone-400">{task.timingLabel}</span>
+                        </div>
+                        <p className={`font-sans font-semibold text-stone-700 text-sm ${checked[task.id] ? "line-through text-stone-400" : ""}`}>
+                          {task.emoji} {task.task}
+                        </p>
+                        <p className="text-xs font-sans text-stone-500 mt-0.5 leading-relaxed">{task.detail}</p>
+                      </div>
+                      {/* Checkbox */}
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-all duration-300 ${
+                          checked[task.id]
+                            ? "bg-emerald-400 shadow-md"
+                            : "bg-white border-2 border-stone-200"
+                        }`}
+                      >
+                        {checked[task.id] && <Check size={14} className="text-white" strokeWidth={3} />}
+                      </div>
+                    </div>
+                  </button>
                 </div>
-            `;
-            infoWindow.setContent(content);
-            infoWindow.open(map, marker);
-        });
-    });
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Security Badge */}
+        <div className="flex justify-center pt-2">
+          <div
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full"
+            style={{ background: "rgba(255,255,255,0.7)", border: "1px solid #E5E7EB", backdropFilter: "blur(8px)" }}
+          >
+            <Shield size={13} className="text-emerald-500 flex-shrink-0" />
+            <p className="text-xs font-sans text-stone-400 leading-tight">
+              データは解析後に自動消去。AI学習には使用しません。
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 }
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCYsr6dAObT_BKyxsFs01jJV4KyVAodBrw&callback=initMap" async defer></script>
-</body>
-</html>
